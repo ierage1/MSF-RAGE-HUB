@@ -25,8 +25,7 @@ local Window = Rayfield:CreateWindow({
 	KeySystem = true,
 	KeySettings = {
 		Title = "ierage1 Github Key",
-		Subtitle = "Key From:            
-https://raw.githubusercontent.com/ierage1/MSF-RAGE-HUB/refs/heads/main/key",
+		Subtitle = "Key From:      https://raw.githubusercontent.com/ierage1/MSF-RAGE-HUB/refs/heads/main/key",
 		Note = "The Key is unlimited so you dont need to keep getting it.",
 		FileName = "Key",
 		SaveKey = true,
