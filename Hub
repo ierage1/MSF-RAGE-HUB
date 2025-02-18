@@ -52,13 +52,6 @@ local Button = MainTab:CreateButton({
 })
 
 
-local Button = MainTab:CreateButton({
-   Name = "\OpenAimbot/",
-   Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Open-Aimbot/master/source.lua", true))()
-   end,
-})
-
 
 
 
@@ -73,6 +66,31 @@ local Slider = MainTab:CreateSlider({
    Flag = "Slider1", 
    Callback = function(Value)
 		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value)
+   end,
+})
+
+local OtherTab = Window:CreateTab("Other", nil)
+local Section = OtherTab:CreateSection("Other")
+
+local Button = MainTab:CreateButton({
+   Name = "\OpenAimbot/",
+   Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Open-Aimbot/master/source.lua", true))()
+   end,
+})
+
+local Button = MainTab:CreateButton({
+   Name = "VertexMM2",
+   Callback = function()
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/vertex-peak/vertex/refs/heads/main/loadstring'))()
+   end,
+})
+
+
+local Button = MainTab:CreateButton({
+   Name = "OG this old HUB",
+   Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ierage1/freaky-aimbot-roblox/refs/heads/main/main"))()
    end,
 })
 
