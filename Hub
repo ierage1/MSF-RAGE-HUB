@@ -52,6 +52,17 @@ local Button = MainTab:CreateButton({
 })
 
 
+local Button = MainTab:CreateButton({
+   Name = "\OpenAimbot/",
+   Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Open-Aimbot/master/source.lua", true))()
+   end,
+})
+
+
+
+
+
 
 local Slider = MainTab:CreateSlider({
    Name = "Walkspeed Slider",
