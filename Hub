@@ -2,40 +2,40 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
 	Name = "MSF.RageHub",
-	Icon = 0, -- Icon in Topbar. Can use Lucide Icons (string) or Roblox Image (number). 0 to use no icon (default).
-	LoadingTitle = "Ultimate Rage Script",
+	Icon = 0, 
+	LoadingTitle = "MSF Rage Gui",
 	LoadingSubtitle = "by erage",
-	Theme = "Amethyst", -- Check https://docs.sirius.menu/rayfield/configuration/themes
+	Theme = "Amethyst", 
 
 	DisableRayfieldPrompts = false,
-	DisableBuildWarnings = false, -- Prevents Rayfield from warning when the script has a version mismatch with the interface
+	DisableBuildWarnings = false, 
 
 	ConfigurationSaving = {
 		Enabled = false,
-		FolderName = nil, -- Create a custom folder for your hub/game
+		FolderName = nil,
 		FileName = "MSF RAGE Hub"
 	},
 
 	Discord = {
-		Enabled = true, -- Prompt the user to join your Discord server if their executor supports it
-		Invite = "https://discord.gg/efcGtrCUUc", -- The Discord invite code, do not include discord.gg/. E.g. discord.gg/ ABCD would be ABCD
-		RememberJoins = true -- Set this to false to make them join the discord every time they load it up
+		Enabled = true, 
+		Invite = "efcGtrCUUc",
+		RememberJoins = true
 	},
 
-	KeySystem = true, -- Set this to true to use our key system
+	KeySystem = true,
 	KeySettings = {
-		Title = "SkibidiKeySystem",
+		Title = "ierage1 Github Key",
 		Subtitle = "Key System",
-		Note = "Key is being updated... key: SkibidiHub", -- Use this to tell the user how to get a key
-		FileName = "Key", -- It is recommended to use something unique as other scripts using Rayfield may overwrite your key file
-		SaveKey = false, -- The user's key will be saved, but if you change the key, they will be unable to use your script
-		GrabKeyFromSite = false, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
-		Key = {"SkibidiHub"}
+		Note = "Key From https://raw.githubusercontent.com/ierage1/MSF-RAGE-HUB/refs/heads/main/key",
+		FileName = "Key",
+		SaveKey = true,
+		GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+		Key = {"https://raw.githubusercontent.com/ierage1/MSF-RAGE-HUB/refs/heads/main/key"}
 	}
 })
 
-local MainTab = Window:CreateTab("ðŸ Home", nil)
-local MainSection = MainTab:CreateSection("Main") -- Title, Image
+local MainTab = Window:CreateTab("Basics", nil)
+local MainSection = MainTab:CreateSection("Main")
 
 Rayfield:Notify({
    Title = "Executed",
@@ -45,17 +45,20 @@ Rayfield:Notify({
 })
 
 
+
 local Slider = MainTab:CreateSlider({
    Name = "Walkspeed Slider",
    Range = {16, 200},
    Increment = 1,
    Suffix = "Speed",
    CurrentValue = 16,
-   Flag = "Slider1", -- A flag is the identifier for the configuration file, make sure every element has a different flag if you're using configuration saving to ensure no overlaps
+   Flag = "Slider1", 
    Callback = function(Value)
 		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value)
    end,
 })
+
+
 
 local UniversalTab = Window:CreateTab("Universal", nil)
 local Section = UniversalTab:CreateSection("Universal")
@@ -63,7 +66,7 @@ local Section = UniversalTab:CreateSection("Universal")
 local Button = UniversalTab:CreateButton({
    Name = "Aimbot",
    Callback = function()
-		loadstring(game:HttpGet('https://raw.githubusercontent.com/discopro/open-source/main/dreamybull.lua'))()
+		https://raw.githubusercontent.com/ierage1/MSF-RAGE-HUB/refs/heads/main/aimbob
    end,
 })
 
@@ -73,3 +76,5 @@ local Button = UniversalTab:CreateButton({
 		loadstring(game:HttpGet(('https://raw.githubusercontent.com/cool83birdcarfly02six/UNIVERSALESPLTX/main/README.md'),true))()
    end,
 })
+
+Rayfield:LoadConfiguration()
