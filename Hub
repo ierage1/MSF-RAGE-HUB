@@ -1,79 +1,234 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
 local Window = Rayfield:CreateWindow({
-	Name = "MSF.RageHub",
-	Icon = 0, 
-	LoadingTitle = "MSF Rage Gui",
-	LoadingSubtitle = "by erage",
-	Theme = "Amethyst", 
-
+    Name = "⚡ Erage Assist ⚡",
+    LoadingTitle = "Loading Erage's Assist...",
+    LoadingSubtitle = "By Erage",
+	Theme = "Amethyst",
 	DisableRayfieldPrompts = false,
 	DisableBuildWarnings = false, 
-
-	ConfigurationSaving = {
-		Enabled = false,
-		FolderName = nil,
-		FileName = "MSF RAGE Hub"
-	},
-
+    ConfigurationSaving = {
+        Enabled = true,
+        FolderName = "Erage's Assist",
+        FileName = "Settings"
+    },
 	Discord = {
 		Enabled = true, 
 		Invite = "efcGtrCUUc",
-		RememberJoins = true
+		RememberJoins = false,
 	},
-
 	KeySystem = true,
 	KeySettings = {
 		Title = "ierage1 Github Key",
 		Subtitle = "Key From:      https://raw.githubusercontent.com/ierage1/MSF-RAGE-HUB/refs/heads/main/key",
-		Note = "The Key is unlimited so you dont need to keep getting it.",
+		Note = "Get Key everytime from the github.",
 		FileName = "Key",
-		SaveKey = true,
-		GrabKeyFromSite = true, -- If this is true, set Key below to the RAW site you would like Rayfield to get the key from
+		SaveKey = false,
+		GrabKeyFromSite = true, 
 		Key = {"https://raw.githubusercontent.com/ierage1/MSF-RAGE-HUB/refs/heads/main/key"}
 	}
 })
 
-local MainTab = Window:CreateTab("Basics", nil)
-local MainSection = MainTab:CreateSection("Main")
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse()
 
-Rayfield:Notify({
-   Title = "Executed",
-   Content = "MSF.Rage Gui",
-   Duration = 6.5,
-   Image = nil,
+local aimbotEnabled = false
+local aimbotFOV = 150
+local aimbotTarget = nil
+
+local softAimEnabled = false
+local softAimStrength = 0.2
+
+local espEnabled = false
+local highlight = Instance.new("Highlight")
+highlight.Name = "Highlight"
+highlight.FillColor = Color3.fromRGB(169, 169, 169)
+highlight.FillTransparency = 0.89
+
+local fovCircle = Drawing.new("Circle")
+fovCircle.Color = Color3.fromRGB(255, 0, 0)
+fovCircle.Thickness = 1
+fovCircle.Filled = false
+fovCircle.Radius = aimbotFOV
+
+local function isVisible(target)
+    local origin = Camera.CFrame.Position
+    local direction = (target.Position - origin).unit * 1000
+    local ray = Ray.new(origin, direction)
+    local hit, _ = workspace:FindPartOnRay(ray, LocalPlayer.Character)
+    return hit and hit:IsDescendantOf(target.Parent)
+end
+
+local function isTargetInFOV(target)
+    local screenPos, onScreen = Camera:WorldToScreenPoint(target.Position)
+    local mousePos = Vector2.new(Mouse.X, Mouse.Y)
+    local distance = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+    return onScreen and distance < aimbotFOV
+end
+
+local function getClosestTarget()
+    local closest, closestDistance = nil, math.huge
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local character = player.Character
+            local head = character:FindFirstChild("Head")
+            if head and isVisible(head) and isTargetInFOV(head) then
+                local screenPos = Camera:WorldToScreenPoint(head.Position)
+                local distance = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Mouse.X, Mouse.Y)).Magnitude
+                if distance < closestDistance then
+                    closest, closestDistance = head, distance
+                end
+            end
+        end
+    end
+    return closest
+end
+
+UserInputService.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 and aimbotEnabled then
+        aimbotTarget = getClosestTarget()
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        aimbotTarget = nil
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    fovCircle.Position = Vector2.new(Mouse.X, Mouse.Y)
+    fovCircle.Radius = aimbotFOV
+
+    if aimbotTarget and aimbotEnabled then
+        Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, aimbotTarget.Position), 0.1)
+    end
+
+    if softAimEnabled and aimbotTarget then
+        local direction = (aimbotTarget.Position - Camera.CFrame.Position).unit
+        Camera.CFrame = Camera.CFrame:Lerp(CFrame.new(Camera.CFrame.Position, Camera.CFrame.Position + direction * (1 - softAimStrength)), softAimStrength)
+    end
+end)
+
+local function enableESP()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local character = player.Character
+            local humanoidRoot = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRoot and not humanoidRoot:FindFirstChild("Highlight") then
+                local highlightClone = highlight:Clone()
+                highlightClone.Adornee = character
+                highlightClone.Parent = humanoidRoot
+                highlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                highlightClone.Name = "Highlight"
+            end
+        end
+    end
+end
+
+-- Update ESP when a new player joins or respawns
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        -- Run ESP update when a new player or respawned player appears
+        enableESP()
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function(playerRemoved)
+    local humanoidRoot = playerRemoved.Character and playerRemoved.Character:FindFirstChild("HumanoidRootPart")
+    if humanoidRoot then
+        local highlight = humanoidRoot:FindFirstChild("Highlight")
+        if highlight then
+            highlight:Destroy()
+        end
+    end
+end)
+
+RunService.RenderStepped:Connect(function()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            local character = player.Character
+            local humanoidRoot = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRoot and humanoidRoot:FindFirstChild("Highlight") then
+                local highlight = humanoidRoot:FindFirstChild("Highlight")
+                if not highlight then
+                    local highlightClone = highlight:Clone()
+                    highlightClone.Adornee = character
+                    highlightClone.Parent = humanoidRoot
+                    highlightClone.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                    highlightClone.Name = "Highlight"
+                end
+            end
+        end
+    end
+end)
+
+local AimbotTab = Window:CreateTab("🎯 Aimbot", 4483362458)
+local ESPTab = Window:CreateTab("👀 ESP", 4483362458)
+local SoftAimTab = Window:CreateTab("🎯 SoftAim", 4483362458)
+
+local AimbotSection = AimbotTab:CreateSection("Aimbot Settings")
+local ToggleAimbot = AimbotTab:CreateToggle({
+    Name = "Enable Aimbot",
+    CurrentValue = aimbotEnabled,
+    Flag = "aimbotEnabled",
+    Callback = function(Value)
+        aimbotEnabled = Value
+    end,
 })
 
-local Button = MainTab:CreateButton({
-   Name = "InfiniteYield",
-   Callback = function()
-		loadstring(game:HttpGet(('https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source'),true))()
-   end,
+local SoftAimSection = SoftAimTab:CreateSection("SoftAim Settings")
+local ToggleSoftAim = SoftAimTab:CreateToggle({
+    Name = "Enable SoftAim",
+    CurrentValue = softAimEnabled,
+    Flag = "softAimEnabled",
+    Callback = function(Value)
+        softAimEnabled = Value
+    end,
 })
 
-
-
-
-
-
-
-local Slider = MainTab:CreateSlider({
-   Name = "Walkspeed Slider",
-   Range = {16, 200},
-   Increment = 1,
-   Suffix = "Speed",
-   CurrentValue = 16,
-   Flag = "Slider1", 
-   Callback = function(Value)
-		game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = (Value)
-   end,
+local ESPSection = ESPTab:CreateSection("ESP Settings")
+local ToggleESP = ESPTab:CreateToggle({
+    Name = "Enable ESP",
+    CurrentValue = espEnabled,
+    Flag = "espEnabled",
+    Callback = function(Value)
+        espEnabled = Value
+        if espEnabled then
+            enableESP()
+        else
+            for _, player in ipairs(Players:GetPlayers()) do
+                if player.Character then
+                    local humanoidRoot = player.Character:FindFirstChild("HumanoidRootPart")
+                    if humanoidRoot then
+                        local highlight = humanoidRoot:FindFirstChild("Highlight")
+                        if highlight then
+                            highlight:Destroy()
+                        end
+                    end
+                end
+            end
+        end
+    end,
 })
 
-local OtherTab = Window:CreateTab("Other", nil)
+local FOVToggle = ESPTab:CreateToggle({
+    Name = "Enable FOV Circle",
+    CurrentValue = true,
+    Flag = "fovEnabled",
+    Callback = function(Value)
+        fovCircle.Visible = Value
+    end,
+})
+
+local OtherTab = Window:CreateTab("Other", 4483362458)
 local Section = OtherTab:CreateSection("Other")
 
 local Button = OtherTab:CreateButton({
-   Name = "\OpenAimbot/",
+   Name = "OpenAimbot",
    Callback = function()
 		loadstring(game:HttpGet("https://raw.githubusercontent.com/ttwizz/Open-Aimbot/master/source.lua", true))()
    end,
@@ -86,30 +241,20 @@ local Button = OtherTab:CreateButton({
    end,
 })
 
+local Button = OtherTab:CreateButton({
+   Name = "8bits (Very good gui for aimbot)",
+   Callback = function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/8bits4ya/rivals-v3/refs/heads/main/main.lua"))()
+
+   end,
+})
 
 local Button = OtherTab:CreateButton({
-   Name = "OG this old HUB",
+   Name = "InfiniteYield",
    Callback = function()
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/ierage1/freaky-aimbot-roblox/refs/heads/main/main"))()
+		loadstring(game:HttpGet(('https://raw.githubusercontent.com/edgeiy/infiniteyield/master/source'),true))()
    end,
 })
 
-
-local UniversalTab = Window:CreateTab("Universal", nil)
-local Section = UniversalTab:CreateSection("Universal")
-
-local Button = UniversalTab:CreateButton({
-   Name = "Aimbot",
-   Callback = function()
-		loadstring(game:HttpGet(('https://raw.githubusercontent.com/discopro/open-source/main/dreamybull.lua'),true))()
-   end,
-})
-
-local Button = UniversalTab:CreateButton({
-   Name = "Esp",
-   Callback = function()
-		loadstring(game:HttpGet(('https://raw.githubusercontent.com/cool83birdcarfly02six/UNIVERSALESPLTX/main/README.md'),true))()
-   end,
-})
 
 Rayfield:LoadConfiguration()
